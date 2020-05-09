@@ -1,0 +1,52 @@
+version: '3'
+services:
+  db:
+    build: ./docker/db
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql-store:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${TZ}
+
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    tty: true
+    command: bundle exec puma -C config/puma.rb
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - TZ=${TZ}
+    volumes:
+      - ./src:/webapp
+      - ./logs/ruby:/webapp/log
+      - tmp-store:/tmp
+    depends_on:
+      - db
+
+  server:
+    image: nginx:latest
+    ports:
+      - '80:80'
+    volumes:
+      - ./src:/webapp
+      - ./logs/nginx:/var/log/nginx
+      - ./docker/server/default.conf:/etc/nginx/conf.d/default.conf
+      - tmp-store:/tmp
+    environment:
+      - TZ=${TZ}
+    depends_on:
+      - app
+
+volumes:
+  mysql-store:
+  tmp-store:
