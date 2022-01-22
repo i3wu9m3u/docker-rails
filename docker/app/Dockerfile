@@ -1,4 +1,4 @@
-FROM ruby:2.6.5
+FROM ruby:3.1.0
 
 ARG TZ
 
@@ -8,6 +8,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
         build-essential \
         libpq-dev \
         nodejs \
+        yarn \
         vim && \
     rm -rf /var/lib/apt/lists/*
 
@@ -15,7 +16,9 @@ ENV APP_ROOT /webapp
 WORKDIR $APP_ROOT
 COPY ./src/Gemfile* ./
 
-RUN bundle install
+RUN bundle instal
+#RUN yarn install --check-files
+#RUN bundle exec rails webpacker:compile
 
 # puma.sockを配置するディレクトリを作成
 RUN mkdir -p /tmp/sockets
