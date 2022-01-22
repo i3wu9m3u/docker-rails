@@ -8,17 +8,15 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
         build-essential \
         libpq-dev \
         nodejs \
-        yarn \
-        vim && \
-    rm -rf /var/lib/apt/lists/*
+        vim
+
+RUN rm -rf /var/lib/apt/lists/*
 
 ENV APP_ROOT /webapp
 WORKDIR $APP_ROOT
 COPY ./src/Gemfile* ./
 
-RUN bundle instal
-#RUN yarn install --check-files
-#RUN bundle exec rails webpacker:compile
+RUN bundle install
 
 # puma.sockを配置するディレクトリを作成
 RUN mkdir -p /tmp/sockets
